@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import OfficeMap from './components/OfficeMap';
 import AIConsultant from './components/AIConsultant';
@@ -17,12 +18,13 @@ import LoadingScreen from './components/LoadingScreen';
 import NetworkIntelligence from './components/NetworkIntelligence'; 
 import BusinessNetworkPage from './components/BusinessNetworkPage'; 
 import ConsultingPage from './components/ConsultingPage';
+import AiModelsPage from './components/AiModelsPage';
 import { Business, ServiceType, Invoice, BusinessGenome } from './types';
 import { getMockBusinesses, MY_BUSINESS_GENOME } from './constants';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Language } from './utils/translations';
 
-type AppView = 'home' | 'map' | 'services' | 'business-network' | 'consulting' | 'profile' | 'subscription' | 'about' | 'faq' | 'contact' | 'our-services';
+type AppView = 'home' | 'map' | 'services' | 'ai-models' | 'business-network' | 'consulting' | 'profile' | 'subscription' | 'about' | 'faq' | 'contact' | 'our-services';
 
 const App: React.FC = () => {
   const { t, language, setLanguage } = useLanguage();
@@ -239,6 +241,7 @@ const App: React.FC = () => {
                    { id: 'home', label: t('home') },
                    { id: 'map', label: t('map') },
                    { id: 'services', label: t('manageServices') },
+                   { id: 'ai-models', label: t('aiModelsPage') },
                    { id: 'business-network', label: t('businessNetworkPage') },
                    { id: 'consulting', label: t('consultingPage') },
                    { id: 'subscription', label: t('plansTitle') },
@@ -386,6 +389,12 @@ const App: React.FC = () => {
         {activeTab === 'services' && (
            <div className="animate-fade-in">
               <ServicesPage />
+           </div>
+        )}
+
+        {activeTab === 'ai-models' && (
+           <div className="animate-fade-in">
+              <AiModelsPage />
            </div>
         )}
 

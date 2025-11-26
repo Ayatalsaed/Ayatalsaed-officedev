@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -130,6 +131,15 @@ const TaskManager: React.FC = () => {
     if (!newEvent.trim()) return;
     setMonthlyEvents([...monthlyEvents, { id: Date.now().toString(), text: newEvent, date: formatDateKey(selectedDate) }]);
     setNewEvent('');
+  };
+
+  const editEvent = (id: string) => {
+    const event = monthlyEvents.find(e => e.id === id);
+    if (!event) return;
+    const newText = window.prompt('Edit Event', event.text);
+    if (newText !== null && newText.trim() !== '') {
+        setMonthlyEvents(monthlyEvents.map(e => e.id === id ? { ...e, text: newText } : e));
+    }
   };
 
   const deleteEvent = (id: string) => {
@@ -365,15 +375,15 @@ const TaskManager: React.FC = () => {
                                 <button
                                   key={dateKey}
                                   onClick={() => setSelectedDate(date)}
-                                  className={`aspect-square rounded-2xl relative flex flex-col items-center justify-center transition-all duration-200 ${
+                                  className={`aspect-square rounded-2xl relative flex flex-col items-center justify-center transition-all duration-300 ${
                                       isSelected 
-                                        ? 'bg-brand-primary text-white shadow-lg shadow-blue-900/20 scale-105 z-10' 
-                                        : 'bg-slate-50 text-slate-600 hover:bg-blue-50'
-                                  } ${isToday && !isSelected ? 'ring-2 ring-blue-200 bg-white' : ''}`}
+                                        ? 'bg-brand-primary text-white shadow-lg shadow-blue-900/40 scale-110 z-20 ring-4 ring-blue-100' 
+                                        : 'bg-slate-50 text-slate-600 hover:bg-white hover:shadow-md hover:scale-105 hover:z-10'
+                                  } ${isToday && !isSelected ? 'ring-2 ring-blue-400 bg-blue-50' : ''}`}
                                 >
-                                  <span className={`text-lg font-bold`}>{date.getDate()}</span>
+                                  <span className={`text-lg font-bold ${isSelected ? 'scale-110' : ''}`}>{date.getDate()}</span>
                                   {hasEvents && (
-                                      <span className={`absolute bottom-2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-blue-500'}`}></span>
+                                      <span className={`absolute bottom-2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-brand-gold'}`}></span>
                                   )}
                                 </button>
                             );
@@ -406,19 +416,32 @@ const TaskManager: React.FC = () => {
 
                       <div className="space-y-3">
                           {eventsForSelectedDay.length === 0 && (
-                            <div className="text-center py-10 text-slate-400 text-sm italic border-2 border-dashed border-slate-100 rounded-xl">
+                            <div className="text-center py-12 text-slate-400 text-sm font-medium border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
+                                <span className="text-2xl block mb-2">📅</span>
                                 {t('noEvents')}
                             </div>
                           )}
                           {eventsForSelectedDay.map(event => (
-                            <div key={event.id} className="group flex items-center justify-between bg-blue-50 p-4 rounded-xl border border-blue-100">
-                                <p className="font-bold text-brand-primary text-sm">{event.text}</p>
-                                <button 
-                                  onClick={() => deleteEvent(event.id)}
-                                  className="text-slate-400 hover:text-red-500 transition-colors p-1"
-                                >
-                                  ✕
-                                </button>
+                            <div key={event.id} className="group flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all">
+                                <div className="flex-1 cursor-pointer" onClick={() => editEvent(event.id)}>
+                                    <p className="font-bold text-slate-800 text-sm group-hover:text-brand-primary transition-colors">{event.text}</p>
+                                </div>
+                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button 
+                                      onClick={() => editEvent(event.id)}
+                                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                      title="Edit"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                    </button>
+                                    <button 
+                                      onClick={() => deleteEvent(event.id)}
+                                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                      title="Delete"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
                             </div>
                           ))}
                       </div>
