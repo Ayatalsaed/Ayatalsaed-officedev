@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from '../types';
 import { generateBusinessAdvice } from '../services/geminiService';
@@ -5,9 +6,10 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 interface AIConsultantProps {
   onMessageSent?: () => void;
+  context?: string;
 }
 
-const AIConsultant: React.FC<AIConsultantProps> = ({ onMessageSent }) => {
+const AIConsultant: React.FC<AIConsultantProps> = ({ onMessageSent, context }) => {
   const { t, language } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -34,14 +36,17 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ onMessageSent }) => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = async (overrideText?: string) => {
+  const handleSend = async (overrideText?: string, displayLabel?: string) => {
     const textToSend = overrideText || input;
     if (!textToSend.trim()) return;
+
+    // Use displayLabel if provided (e.g. "Marketing Plan"), otherwise use the full prompt text
+    const userDisplay = displayLabel || textToSend;
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      text: textToSend,
+      text: userDisplay, 
       timestamp: new Date()
     };
 
@@ -53,8 +58,15 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ onMessageSent }) => {
       onMessageSent();
     }
 
+    // Use full text for history context
     const history = messages.map(m => `${m.role === 'user' ? 'User' : 'Consultant'}: ${m.text}`);
-    const responseText = await generateBusinessAdvice(userMsg.text, history, language);
+    
+    // Inject context if provided
+    if (context) {
+        history.unshift(`System Context: ${context}`);
+    }
+
+    const responseText = await generateBusinessAdvice(textToSend, history, language);
 
     const aiMsg: ChatMessage = {
       id: (Date.now() + 1).toString(),
@@ -79,14 +91,14 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ onMessageSent }) => {
   };
 
   const suggestions = [
-    'suggest_marketing',
-    'suggest_swot',
-    'suggest_funding',
-    'suggest_growth'
+    { key: 'suggest_marketing', promptKey: 'suggest_marketing_prompt' },
+    { key: 'suggest_swot', promptKey: 'suggest_swot_prompt' },
+    { key: 'suggest_funding', promptKey: 'suggest_funding_prompt' },
+    { key: 'suggest_growth', promptKey: 'suggest_growth_prompt' }
   ];
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-[32px] overflow-hidden shadow-card border border-slate-100 relative">
+    <div className="flex flex-col h-full min-h-[500px] bg-white rounded-[32px] overflow-hidden shadow-card border border-slate-100 relative">
       {/* Header */}
       <div className="p-6 bg-white border-b border-slate-100 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
@@ -145,7 +157,7 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ onMessageSent }) => {
 
              {msg.role === 'user' && (
                 <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center shrink-0 overflow-hidden border border-white shadow-sm">
-                   <img src="https://picsum.photos/seed/user123/50" alt="User" className="w-full h-full object-cover" />
+                   <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" className="w-full h-full object-cover" />
                 </div>
              )}
           </div>
@@ -173,14 +185,14 @@ const AIConsultant: React.FC<AIConsultantProps> = ({ onMessageSent }) => {
       <div className="bg-white border-t border-slate-100 p-6">
         {/* Suggestions */}
         <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar mask-fade-right">
-           {suggestions.map((key) => (
+           {suggestions.map((item) => (
               <button 
-                key={key}
-                onClick={() => handleSend(t(key))}
+                key={item.key}
+                onClick={() => handleSend(t(item.promptKey), t(item.key))}
                 disabled={loading}
-                className="whitespace-nowrap px-5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all active:scale-95"
+                className="whitespace-nowrap px-5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ✨ {t(key)}
+                ✨ {t(item.key)}
               </button>
            ))}
         </div>

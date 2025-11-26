@@ -1,122 +1,166 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const ServicesPage: React.FC = () => {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
+  const [cart, setCart] = useState<string[]>([]);
+  const [showCart, setShowCart] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
-  // ... (Existing content object structure kept same, just rendering changed)
+  // Content with pricing and IDs added
   const content = {
     ar: {
       title: "خدمات المكاتب الافتراضية وحلول تأسيس الأعمال",
-      subtitle: "نوفّر لروّاد الأعمال والشركات حضورًا رسميًا متكاملاً دون الحاجة لمقر فعلي، مع خدمات احترافية تغطي العنوان التجاري، إدارة الاتصالات، الوصول لمساحات العمل، والدعم القانوني والإداري.",
+      subtitle: "نوفّر لروّاد الأعمال والشركات حضورًا رسميًا متكاملاً دون الحاجة لمقر فعلي.",
       sections: [
         {
-          title: "أولاً: الخدمات الأساسية للمكتب الافتراضي",
-          desc: "هذه هي الركائز التي تمنح شركتك حضورًا مهنيًا وامتثالًا قانونيًا دون مكتب فعلي:",
+          title: "الخدمات الأساسية",
           items: [
-            { title: "العنوان التجاري القانوني", details: ["عنوان فعلي مُعتمد لتسجيل الشركة.", "حماية خصوصيتك بإبعاد عنوانك الشخصي عن السجل العام.", "واجهة مهنية أمام العملاء والهيئات الحكومية."] },
-            { title: "إدارة البريد والطرود", details: ["استلام وفرز البريد الرسمي والطرود.", "إعادة التوجيه لأي عنوان تريده.", "إشعارات فورية عند وصول بريد جديد."] },
-            { title: "العنوان المعتمد للجهات الحكومية", details: ["السعودية: مقر افتراضي معتمد وفق النظام الجديد.", "الإمارات: عنوان قانوني لإصدار الرخص (إيجاري/استدامة).", "عالمياً: عناوين صالحة لتأسيس الشركات في أمريكا وبريطانيا."] }
+            { id: 'addr', title: "العنوان التجاري القانوني", desc: "عنوان فعلي مُعتمد لتسجيل الشركة.", price: 199 },
+            { id: 'mail', title: "إدارة البريد والطرود", desc: "استلام وفرز البريد الرسمي والطرود.", price: 99 },
+            { id: 'gov', title: "العنوان المعتمد للجهات الحكومية", desc: "مقر افتراضي معتمد وفق النظام الجديد.", price: 299 }
           ]
         },
         {
-          title: "ثانياً: خدمات الاتصالات والدعم الإداري",
-          desc: "نعطي شركتك حضورًا صوتيًا وعملياتيًا احترافيًا:",
+          title: "الاتصالات والدعم",
           items: [
-            { title: "موظف استقبال افتراضي", details: ["الرد على المكالمات باسم شركتك.", "تحويل المكالمات أو تسجيل الرسائل.", "خدمة بلغات متعددة عند الحاجة."] },
-            { title: "رقم هاتف مخصص", details: ["رقم محلي مباشر للشركة.", "بريد صوتي مع تحويل التسجيلات للإيميل.", "إمكانية استخدام الرقم عبر تطبيقات الهاتف."] },
-            { title: "سكرتارية ومساعدة إدارية", details: ["تنسيق المواعيد وإدارة البريد الإلكتروني.", "إعداد مستندات وعروض تقديمية.", "دعم عملائك والرد على الاستفسارات."] }
+            { id: 'rec', title: "موظف استقبال افتراضي", desc: "الرد على المكالمات باسم شركتك.", price: 149 },
+            { id: 'phone', title: "رقم هاتف مخصص", desc: "رقم محلي مباشر للشركة.", price: 49 },
+            { id: 'sec', title: "سكرتارية ومساعدة إدارية", desc: "تنسيق المواعيد وإدارة البريد الإلكتروني.", price: 399 }
           ]
         },
         {
-          title: "ثالثاً: خدمات الوصول المادي ومساحات العمل",
-          desc: "على الرغم من أن مقرّك افتراضي، يمكنك العمل فعليًا وقت الحاجة:",
+          title: "مساحات العمل",
           items: [
-            { title: "قاعات اجتماعات مجهّزة", details: ["تُحجز بالساعة.", "شاشات عرض – اتصال سريع – ضيافة.", "بيئة احترافية لاستقبال العملاء."] },
-            { title: "مساحات عمل مشتركة (Coworking)", details: ["دخول حسب الطلب أو ساعات شهرية.", "مكاتب يومية (Day Office) عند الحاجة.", "بيئة عمل محفزة ومشتركة."] },
-            { title: "الوصول العالمي", details: ["استخدام مكاتب وقاعات اجتماعات في مئات المدن حول العالم.", "عضوية مرنة تناسب تنقلاتك."] }
+            { id: 'meet', title: "قاعات اجتماعات مجهّزة", desc: "تُحجز بالساعة. شاشات عرض واتصال سريع.", price: 50 },
+            { id: 'cowork', title: "مساحات عمل مشتركة", desc: "دخول حسب الطلب أو ساعات شهرية.", price: 150 },
+            { id: 'global', title: "الوصول العالمي", desc: "استخدام مكاتب وقاعات اجتماعات حول العالم.", price: 599 }
           ]
         },
         {
-          title: "رابعاً: خدمات تأسيس الشركات والامتثال",
-          desc: "نوفر حلولًا متكاملة تساعدك على تأسيس شركتك وتشغيلها بسهولة:",
+          title: "تأسيس الشركات",
           items: [
-            { title: "تأسيس وتسجيل الشركات", details: ["إصدار السجل التجاري والرخصة.", "تسجيل فوري أو خلال ساعات حسب الدولة.", "تجهيز العقود والملفات القانونية."] },
-            { title: "خدمات مالية وقانونية", details: ["فتح حساب بنكي تجاري.", "مسك الدفاتر، المحاسبة، وضريبة القيمة المضافة.", "خدمات الوكيل المسجل (Registered Agent)."] },
-            { title: "خدمات المناطق الحرة (الإمارات)", details: ["ملكية 100% للشركة بدون شريك محلي.", "آلاف الأنشطة التجارية المعتمدة.", "دعم شامل حتى فتح الحساب البنكي."] }
+            { id: 'inc', title: "تأسيس وتسجيل الشركات", desc: "إصدار السجل التجاري والرخصة.", price: 1500 },
+            { id: 'fin', title: "خدمات مالية وقانونية", desc: "فتح حساب بنكي ومسك الدفاتر.", price: 800 },
+            { id: 'free', title: "خدمات المناطق الحرة", desc: "ملكية 100% للشركة بدون شريك محلي.", price: 2500 }
           ]
         }
-      ],
-      whyUs: {
-        title: "خامساً: لماذا المكتب الافتراضي هو الحل؟",
-        desc: "لأنه ببساطة \"البدلة الرسمية لعملك\". يعطيك كل ما تحتاجه لتبدو كشركة كاملة—عنوان مرموق، هاتف رسمي، استقبال مكالمات، إدارة بريد، قاعات اجتماعات—بدون تكاليف المقر التقليدي."
-      }
+      ]
     },
-    // ... (EN and ES sections omitted for brevity, they use the same structure)
     en: {
-       title: "Virtual Office Services & Business Solutions",
-       subtitle: "We provide entrepreneurs and companies with a complete official presence without the need for a physical headquarters.",
-       sections: [
+      title: "Virtual Office Services",
+      subtitle: "Complete official presence without physical headquarters.",
+      sections: [
         {
-          title: "1. Core Virtual Office Services",
-          desc: "Professional presence and legal compliance:",
+          title: "Core Services",
           items: [
-            { title: "Legal Business Address", details: ["Certified physical address.", "Protect privacy.", "Professional interface."] },
-            { title: "Mail & Package Management", details: ["Receive and sort mail.", "Forwarding service.", "Instant notifications."] },
-            { title: "Government Approved Address", details: ["KSA: Certified virtual headquarters.", "UAE: Legal address (Ejari).", "Global: Valid addresses."] }
+            { id: 'addr', title: "Legal Business Address", desc: "Certified physical address.", price: 199 },
+            { id: 'mail', title: "Mail Management", desc: "Receive and sort mail.", price: 99 },
+            { id: 'gov', title: "Government Address", desc: "Certified virtual headquarters.", price: 299 }
           ]
         },
-        // ... other sections similar structure
         {
-            title: "2. Communication & Admin Support",
-            desc: "Professional vocal and operational presence:",
-            items: [
-                { title: "Virtual Receptionist", details: ["Call answering.", "Call forwarding.", "Multi-lingual."] },
-                { title: "Dedicated Phone Number", details: ["Local number.", "Voicemail to email.", "Mobile app usage."] },
-                { title: "Secretarial Support", details: ["Scheduling.", "Docs prep.", "Customer support."] }
-            ]
+          title: "Communication",
+          items: [
+            { id: 'rec', title: "Virtual Receptionist", desc: "Call answering in company name.", price: 149 },
+            { id: 'phone', title: "Dedicated Phone", desc: "Local direct number.", price: 49 },
+            { id: 'sec', title: "Secretarial Support", desc: "Scheduling and admin.", price: 399 }
+          ]
+        },
+        {
+          title: "Workspaces",
+          items: [
+            { id: 'meet', title: "Meeting Rooms", desc: "Book by hour. Fully equipped.", price: 50 },
+            { id: 'cowork', title: "Coworking Access", desc: "On-demand access.", price: 150 },
+            { id: 'global', title: "Global Access", desc: "Use offices worldwide.", price: 599 }
+          ]
+        },
+        {
+          title: "Formation",
+          items: [
+            { id: 'inc', title: "Company Formation", desc: "Commercial registration issuance.", price: 1500 },
+            { id: 'fin', title: "Financial & Legal", desc: "Bank account & bookkeeping.", price: 800 },
+            { id: 'free', title: "Free Zone Services", desc: "100% ownership setup.", price: 2500 }
+          ]
         }
-       ],
-       whyUs: {
-        title: "Why a Virtual Office?",
-        desc: "It is the 'Formal Suit for Your Business'. Prestigious address, official phone, without overhead."
-       }
+      ]
     },
     es: {
-       title: "Servicios de Oficina Virtual",
-       subtitle: "Presencia oficial completa sin sede física.",
-       sections: [
-           {
-               title: "1. Servicios Básicos",
-               desc: "Presencia profesional y cumplimiento legal:",
-               items: [
-                   { title: "Dirección Comercial", details: ["Certificada.", "Privacidad.", "Interfaz profesional."] },
-                   { title: "Gestión de Correo", details: ["Recepción.", "Reenvío.", "Notificaciones."] },
-                   { title: "Dirección Aprobada", details: ["KSA: Sede virtual.", "EAU: Ejari.", "Global: Direcciones válidas."] }
-               ]
-           },
-           {
-            title: "2. Comunicación",
-            desc: "Presencia operativa:",
-            items: [
-                { title: "Recepcionista Virtual", details: ["Respuesta.", "Desvío.", "Multilingüe."] },
-                { title: "Número Dedicado", details: ["Número local.", "Buzón de voz.", "App móvil."] },
-                { title: "Soporte Admin", details: ["Agenda.", "Documentos.", "Soporte."] }
-            ]
-           }
-       ],
-       whyUs: {
-           title: "¿Por qué Oficina Virtual?",
-           desc: "Es el 'Traje Formal' para su negocio."
-       }
+      title: "Servicios de Oficina Virtual",
+      subtitle: "Presencia oficial completa sin sede física.",
+      sections: [
+        {
+          title: "Servicios Básicos",
+          items: [
+            { id: 'addr', title: "Dirección Comercial", desc: "Dirección física certificada.", price: 199 },
+            { id: 'mail', title: "Gestión de Correo", desc: "Recepción y clasificación.", price: 99 },
+            { id: 'gov', title: "Dirección Gubernamental", desc: "Sede virtual certificada.", price: 299 }
+          ]
+        },
+        {
+          title: "Comunicación",
+          items: [
+            { id: 'rec', title: "Recepcionista Virtual", desc: "Respuesta de llamadas.", price: 149 },
+            { id: 'phone', title: "Teléfono Dedicado", desc: "Número local directo.", price: 49 },
+            { id: 'sec', title: "Soporte Secretarial", desc: "Agenda y administración.", price: 399 }
+          ]
+        },
+        {
+          title: "Espacios de Trabajo",
+          items: [
+            { id: 'meet', title: "Salas de Reuniones", desc: "Reserva por hora.", price: 50 },
+            { id: 'cowork', title: "Acceso Coworking", desc: "Acceso bajo demanda.", price: 150 },
+            { id: 'global', title: "Acceso Global", desc: "Uso de oficinas globales.", price: 599 }
+          ]
+        },
+        {
+          title: "Formación",
+          items: [
+            { id: 'inc', title: "Formación de Empresas", desc: "Registro comercial.", price: 1500 },
+            { id: 'fin', title: "Financiero y Legal", desc: "Cuenta bancaria y libros.", price: 800 },
+            { id: 'free', title: "Zona Franca", desc: "100% propiedad.", price: 2500 }
+          ]
+        }
+      ]
     }
   };
 
   const tData = (content as any)[language] || content['ar'];
 
+  const addToCart = (id: string) => {
+    setCart([...cart, id]);
+    // Show temporary feedback could be added here
+  };
+
+  const removeFromCart = (index: number) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
+  };
+
+  const calculateTotal = () => {
+    let total = 0;
+    cart.forEach(itemId => {
+      tData.sections.forEach((sec: any) => {
+        const item = sec.items.find((i: any) => i.id === itemId);
+        if (item) total += item.price;
+      });
+    });
+    return total;
+  };
+
+  const handleCheckout = () => {
+      setOrderSuccess(true);
+      setTimeout(() => {
+          setOrderSuccess(false);
+          setCart([]);
+          setShowCart(false);
+      }, 3000);
+  };
+
   // Icons Map for sections
   const getIcon = (sectionIdx: number, itemIdx: number) => {
-      // Simple logic to return SVG paths based on index
       const paths = [
           ["M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4", "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z", "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"],
           ["M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z", "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z", "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"],
@@ -127,65 +171,177 @@ const ServicesPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-16 animate-fade-in">
+    <div className="w-full bg-offWhite min-h-screen pb-32 animate-fade-in relative">
+      
       {/* Hero Section */}
-      <div className="text-center mb-20 max-w-4xl mx-auto">
-        <h1 className="text-3xl md:text-5xl font-bold text-brand-primary font-heading mb-6 leading-tight">
-          {tData.title}
-        </h1>
-        <p className="text-xl text-text-sub leading-relaxed font-light">
-          {tData.subtitle}
-        </p>
-      </div>
-
-      {/* Sections Grid */}
-      <div className="space-y-24">
-        {tData.sections.map((section: any, idx: number) => (
-          <div key={idx} className="animate-slide-up">
-            <div className="flex flex-col md:flex-row items-baseline gap-4 mb-10 border-b border-slate-100 pb-6">
-               <div className="text-sm font-bold text-brand-gold uppercase tracking-widest shrink-0">
-                  0{idx + 1}
-               </div>
-               <div>
-                  <h2 className="text-2xl font-bold text-brand-primary font-heading mb-2">{section.title}</h2>
-                  <p className="text-base text-slate-500 font-light">{section.desc}</p>
-               </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {section.items.map((item: any, i: number) => (
-                <div key={i} className="bg-white p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 border border-slate-100 flex flex-col group hover:border-brand-primary/20">
-                   <div className="w-12 h-12 bg-brand-surface rounded-lg flex items-center justify-center text-brand-secondary group-hover:text-brand-primary group-hover:bg-blue-50 mb-6 transition-colors">
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={getIcon(idx, i)} />
-                      </svg>
-                   </div>
-                   <h3 className="text-lg font-bold text-brand-primary mb-4 font-heading">{item.title}</h3>
-                   <ul className="space-y-4 mt-auto">
-                      {item.details.map((detail: string, d: number) => (
-                        <li key={d} className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed font-light">
-                           <div className="w-1 h-1 rounded-full bg-brand-gold mt-2 shrink-0"></div>
-                           {detail}
-                        </li>
-                      ))}
-                   </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Why Us */}
-      <div className="mt-24 bg-brand-primary rounded-2xl p-12 md:p-20 text-white text-center shadow-luxury">
-         <div className="max-w-4xl mx-auto space-y-8">
-            <h2 className="text-3xl font-bold font-heading">{tData.whyUs.title}</h2>
-            <div className="w-16 h-1 bg-brand-gold mx-auto"></div>
-            <p className="text-xl md:text-2xl leading-relaxed text-blue-50 font-serif italic">
-               "{tData.whyUs.desc}"
+      <div className="bg-brand-primary text-white pt-16 pb-24 relative overflow-hidden">
+         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-primary/90"></div>
+         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/20 border border-brand-gold/30 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">
+                <div className="w-2 h-2 rounded-full bg-brand-gold animate-pulse"></div>
+                Premium Catalog
+             </div>
+            <h1 className="text-4xl md:text-5xl font-heading font-bold mb-6">{tData.title}</h1>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto font-light leading-relaxed">
+               {tData.subtitle}
             </p>
          </div>
       </div>
+
+      <div className="max-w-7xl mx-auto px-6 -mt-16 relative z-10">
+        
+        {/* Services Grid */}
+        <div className="space-y-16">
+            {tData.sections.map((section: any, idx: number) => (
+                <div key={idx} className="animate-slide-up">
+                    <div className="flex items-center gap-4 mb-8">
+                       <h2 className="text-2xl font-bold text-brand-primary font-heading">{section.title}</h2>
+                       <div className="h-px bg-slate-200 flex-1"></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {section.items.map((item: any, i: number) => (
+                            <div key={i} className="bg-white rounded-2xl p-6 shadow-card hover:shadow-elevated transition-all duration-300 border border-slate-100 group flex flex-col relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-brand-surface rounded-bl-full -mr-12 -mt-12 transition-colors group-hover:bg-blue-50"></div>
+                                
+                                <div className="relative z-10 mb-6">
+                                    <div className="w-12 h-12 bg-white rounded-xl border border-slate-100 flex items-center justify-center text-brand-primary group-hover:bg-brand-primary group-hover:text-white transition-colors shadow-sm">
+                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={getIcon(idx, i)} />
+                                        </svg>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-bold text-brand-primary mb-2 font-heading">{item.title}</h3>
+                                    <p className="text-sm text-slate-500 leading-relaxed mb-6 min-h-[40px]">
+                                        {item.desc}
+                                    </p>
+                                </div>
+
+                                <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase">{t('startingFrom')}</span>
+                                        <div className="text-xl font-bold text-brand-gold">{item.price} <span className="text-xs text-brand-primary">{t('sar')}</span></div>
+                                    </div>
+                                    <button 
+                                        onClick={() => addToCart(item.id)}
+                                        className="px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-lg hover:bg-[#052c42] transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                                    >
+                                        <span>{t('addToCart')}</span>
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Floating Cart Bar */}
+      {cart.length > 0 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 animate-slide-up">
+              <div className="bg-brand-primary text-white p-4 rounded-2xl shadow-2xl border border-white/10 flex items-center justify-between backdrop-blur-md bg-opacity-95">
+                  <div className="flex items-center gap-4 cursor-pointer" onClick={() => setShowCart(!showCart)}>
+                      <div className="relative">
+                          <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-xl">
+                             🛒
+                          </div>
+                          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-brand-primary">
+                              {cart.length}
+                          </span>
+                      </div>
+                      <div>
+                          <div className="text-xs font-bold text-blue-200 uppercase tracking-widest">{t('basket')}</div>
+                          <div className="font-bold">{calculateTotal()} {t('sar')}</div>
+                      </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowCart(true)}
+                    className="px-6 py-2.5 bg-brand-gold text-brand-primary font-bold rounded-xl text-sm hover:bg-white transition-colors"
+                  >
+                      {t('goToCart')}
+                  </button>
+              </div>
+          </div>
+      )}
+
+      {/* Cart Drawer / Modal */}
+      {showCart && (
+          <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+              <div className="bg-white w-full max-w-lg h-[80vh] sm:h-auto sm:max-h-[80vh] rounded-t-3xl sm:rounded-3xl shadow-elevated flex flex-col animate-slide-up">
+                  
+                  {orderSuccess ? (
+                      <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-5xl mb-6 animate-bounce text-green-600">
+                              🎉
+                          </div>
+                          <h3 className="text-2xl font-bold text-brand-primary mb-2">{t('successBooking')}</h3>
+                          <p className="text-slate-500">{t('orderSuccess')}</p>
+                      </div>
+                  ) : (
+                    <>
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-3xl">
+                            <h2 className="text-xl font-bold text-brand-primary">{t('basket')}</h2>
+                            <button onClick={() => setShowCart(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-500">✕</button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                            {cart.length === 0 ? (
+                                <div className="text-center py-10 text-slate-400">{t('cartEmpty')}</div>
+                            ) : (
+                                cart.map((itemId, idx) => {
+                                    // Find item details
+                                    let itemDetails: any = null;
+                                    tData.sections.forEach((sec: any) => {
+                                        const found = sec.items.find((i: any) => i.id === itemId);
+                                        if (found) itemDetails = found;
+                                    });
+
+                                    if (!itemDetails) return null;
+
+                                    return (
+                                        <div key={idx} className="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-white shadow-sm">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-lg font-bold">
+                                                    {itemDetails.title.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-brand-primary text-sm">{itemDetails.title}</div>
+                                                    <div className="text-xs text-brand-gold font-bold">{itemDetails.price} {t('sar')}</div>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => removeFromCart(idx)} className="text-slate-300 hover:text-red-500 transition-colors">
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+
+                        <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-3xl">
+                            <div className="flex justify-between items-center mb-6">
+                                <span className="text-slate-500 font-bold">{t('total')}</span>
+                                <span className="text-2xl font-bold text-brand-primary">{calculateTotal()} {t('sar')}</span>
+                            </div>
+                            <button 
+                                onClick={handleCheckout}
+                                disabled={cart.length === 0}
+                                className="w-full py-4 bg-brand-primary text-white font-bold rounded-xl shadow-lg hover:bg-[#052c42] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {t('checkout')}
+                            </button>
+                        </div>
+                    </>
+                  )}
+              </div>
+          </div>
+      )}
+
     </div>
   );
 };

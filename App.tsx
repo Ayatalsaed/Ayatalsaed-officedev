@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import OfficeMap from './components/OfficeMap';
 import AIConsultant from './components/AIConsultant';
@@ -17,7 +16,7 @@ import ServicesPage from './components/ServicesPage';
 import LoadingScreen from './components/LoadingScreen';
 import NetworkIntelligence from './components/NetworkIntelligence'; 
 import BusinessNetworkPage from './components/BusinessNetworkPage'; 
-import ConsultingPage from './components/ConsultingPage'; // NEW
+import ConsultingPage from './components/ConsultingPage';
 import { Business, ServiceType, Invoice, BusinessGenome } from './types';
 import { getMockBusinesses, MY_BUSINESS_GENOME } from './constants';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -208,281 +207,317 @@ const App: React.FC = () => {
       
       {/* Navigation Bar */}
       <header 
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+        className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled 
             ? 'bg-white/95 backdrop-blur-md shadow-card border-b border-slate-100' 
             : 'bg-white border-b border-transparent'
         }`}
       >
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
-            
-            {/* Right: Logo (Typographic) */}
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-              <div className="w-10 h-10 bg-brand-primary rounded-2xl flex items-center justify-center text-white shadow-sm text-xl font-bold font-serif">
-                 B
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="flex justify-between items-center h-20">
+              {/* Logo */}
+              <div 
+                className="flex items-center gap-3 cursor-pointer group"
+                onClick={() => setActiveTab('home')}
+              >
+                <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-heading font-bold text-xl shadow-lg group-hover:scale-105 transition-transform">
+                   م
+                </div>
+                <div className="flex flex-col">
+                   <span className="font-heading font-bold text-lg text-brand-primary leading-none group-hover:text-blue-700 transition-colors">
+                     {t('appTitle')}
+                   </span>
+                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest group-hover:text-blue-500 transition-colors">
+                     Digital District
+                   </span>
+                </div>
               </div>
-              <div className="hidden sm:flex flex-col">
-                <span className={`font-bold text-lg leading-none text-brand-primary tracking-tight font-heading`}>
-                  {t('appTitle')}
-                </span>
-              </div>
-            </div>
 
-            {/* Center-Right: Links */}
-            <nav className="hidden md:flex items-center gap-8">
-              {(['home', 'map', 'our-services', 'consulting', 'business-network', 'subscription', 'about'] as AppView[]).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`text-sm font-semibold transition-colors duration-200 ${
-                    activeTab === tab 
-                      ? 'text-brand-primary font-bold' 
-                      : 'text-text-sub hover:text-brand-primary'
-                  }`}
-                >
-                  {t(tab === 'subscription' ? 'plansTitle' : tab === 'our-services' ? 'ourServices' : tab === 'consulting' ? 'consultingPage' : tab === 'business-network' ? 'businessNetworkPage' : tab)}
-                </button>
-              ))}
-            </nav>
+              {/* Desktop Nav */}
+              <nav className="hidden lg:flex items-center gap-1">
+                 {[
+                   { id: 'home', label: t('home') },
+                   { id: 'map', label: t('map') },
+                   { id: 'services', label: t('manageServices') },
+                   { id: 'business-network', label: t('businessNetworkPage') },
+                   { id: 'consulting', label: t('consultingPage') },
+                   { id: 'subscription', label: t('plansTitle') },
+                   { id: 'about', label: t('aboutUs') },
+                 ].map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id as AppView)}
+                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 relative group overflow-hidden ${
+                        activeTab === item.id 
+                          ? 'text-brand-primary bg-slate-50' 
+                          : 'text-slate-500 hover:text-brand-primary hover:bg-slate-50/50'
+                      }`}
+                    >
+                       <span className="relative z-10">{item.label}</span>
+                       {activeTab === item.id && (
+                          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary animate-fade-in"></span>
+                       )}
+                    </button>
+                 ))}
+              </nav>
 
-            {/* Left: Actions */}
-            <div className="flex items-center gap-6">
-               {/* Language */}
-               <div className="relative group">
-                  <select 
-                    value={language} 
-                    onChange={(e) => setLanguage(e.target.value as Language)}
-                    className="appearance-none bg-transparent text-xs font-bold uppercase cursor-pointer text-text-sub py-1 pr-4 outline-none hover:text-brand-primary"
-                  >
-                    <option value="ar">AR</option>
-                    <option value="en">EN</option>
-                    <option value="es">ES</option>
-                  </select>
-               </div>
+              {/* Actions */}
+              <div className="flex items-center gap-3">
+                 {/* Lang Switcher */}
+                 <div className="flex bg-slate-100 rounded-lg p-1">
+                    <button 
+                      onClick={() => setLanguage('ar')}
+                      className={`px-2 py-1 rounded text-xs font-bold transition-all ${language === 'ar' ? 'bg-white text-brand-primary shadow-sm' : 'text-slate-400'}`}
+                    >
+                      عربي
+                    </button>
+                    <button 
+                      onClick={() => setLanguage('en')}
+                      className={`px-2 py-1 rounded text-xs font-bold transition-all ${language === 'en' ? 'bg-white text-brand-primary shadow-sm' : 'text-slate-400'}`}
+                    >
+                      EN
+                    </button>
+                    <button 
+                      onClick={() => setLanguage('es')}
+                      className={`px-2 py-1 rounded text-xs font-bold transition-all ${language === 'es' ? 'bg-white text-brand-primary shadow-sm' : 'text-slate-400'}`}
+                    >
+                      ES
+                    </button>
+                 </div>
 
-               {/* User Profile / Login */}
-               {isLoggedIn ? (
-                 <button 
-                   onClick={() => setActiveTab('profile')}
-                   className="relative group ml-2"
-                 >
-                    <div className={`p-0.5 rounded-full transition-all duration-300 ${activeTab === 'profile' ? 'ring-2 ring-brand-primary' : ''}`}>
-                      <div className="w-9 h-9 rounded-full bg-brand-surface flex items-center justify-center text-brand-primary border border-slate-200">
-                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                         </svg>
-                      </div>
+                 {isLoggedIn ? (
+                    <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+                       <button 
+                         onClick={() => setActiveTab('profile')}
+                         className="flex items-center gap-2 hover:bg-slate-50 p-1.5 pr-3 rounded-full border border-transparent hover:border-slate-100 transition-all"
+                       >
+                          <img src="https://ui-avatars.com/api/?name=Ahmed+Ali&background=random" className="w-8 h-8 rounded-full shadow-sm" alt="Profile" />
+                          <div className="hidden xl:block text-start">
+                             <span className="block text-xs font-bold text-brand-primary">Ahmed Ali</span>
+                             <span className="block text-[10px] text-slate-400">TechVision</span>
+                          </div>
+                       </button>
                     </div>
-                 </button>
-               ) : (
-                 <button
-                   onClick={() => setShowAuthModal(true)}
-                   className="ml-2 px-6 py-3 rounded-2xl bg-brand-primary hover:bg-[#052c42] text-white font-semibold text-sm shadow-card hover:shadow-card-hover transition-all"
-                 >
-                   {t('loginButton')}
-                 </button>
-               )}
-            </div>
+                 ) : (
+                    <button 
+                      onClick={() => setShowAuthModal(true)}
+                      className="px-6 py-2.5 bg-brand-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-900/10 hover:bg-[#052c42] hover:shadow-blue-900/20 transition-all active:scale-95"
+                    >
+                      {t('loginButton')}
+                    </button>
+                 )}
+              </div>
+           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 w-full pt-20">
+      {/* Main Content */}
+      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {activeTab === 'home' && (
-          <LandingPage 
-            onNavigate={(tab) => setActiveTab(tab as any)} 
-            isLoggedIn={isLoggedIn}
-            onLogin={() => setShowAuthModal(true)}
-          />
-        )}
+          isLoggedIn ? (
+            <div className="animate-fade-in space-y-8">
+               <ServiceStats consultationCount={consultationCount} />
+               
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[600px]">
+                  {/* Left: Map Preview */}
+                  <div className="lg:col-span-2 bg-white rounded-3xl shadow-card border border-slate-100 overflow-hidden relative group">
+                      <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-4 py-2 rounded-xl text-xs font-bold text-brand-primary shadow-sm flex items-center gap-2">
+                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                         {t('liveActivity')}
+                      </div>
+                      <OfficeMap 
+                        businesses={businesses}
+                        favorites={favorites}
+                        onToggleFavorite={toggleFavorite}
+                        onRentClick={handleRentClick}
+                        onAddBusiness={handleAddBusiness}
+                        onUpdateBusiness={handleUpdateBusiness}
+                      />
+                      {/* Overlay to encourage clicking full map */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors pointer-events-none"></div>
+                  </div>
 
-        {activeTab === 'about' && (
-           <div className="max-w-7xl mx-auto px-6 mt-12">
-              <AboutPage />
-           </div>
-        )}
-        
-        {activeTab === 'our-services' && (
-           <ServicesPage />
-        )}
+                  {/* Right: AI Assistant */}
+                  <div className="lg:col-span-1 h-full">
+                      <AIConsultant 
+                        onMessageSent={handleConsultationSent}
+                      />
+                  </div>
+               </div>
 
-        {activeTab === 'business-network' && (
-           <BusinessNetworkPage businesses={businesses} />
-        )}
-
-        {activeTab === 'consulting' && (
-           <ConsultingPage />
-        )}
-
-        {activeTab === 'faq' && (
-           <div className="max-w-7xl mx-auto px-6 mt-12">
-              <FaqPage />
-           </div>
-        )}
-
-        {activeTab === 'contact' && (
-           <div className="max-w-7xl mx-auto px-6 mt-12">
-              <ContactPage />
-           </div>
-        )}
-
-        {activeTab === 'profile' && isLoggedIn && (
-          <div className="max-w-7xl mx-auto px-6 mt-12">
-             <ProfilePage 
-                onLogout={handleLogout} 
-                invoices={invoices}
-                onPayInvoice={handlePayInvoice}
-                onAddBusiness={handleAddBusiness}
-                businesses={businesses}
-             />
-          </div>
-        )}
-
-        {activeTab === 'subscription' && (
-           <div className="max-w-7xl mx-auto px-6 mt-12">
-              <SubscriptionPage onSubscribe={handleSubscribe} />
-           </div>
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2">
+                     <div className="bg-white p-6 rounded-3xl shadow-card border border-slate-100">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="font-bold text-brand-primary text-lg">{t('servicesDashboard')}</h3>
+                            <button onClick={() => setActiveTab('services')} className="text-xs font-bold text-blue-600 hover:underline">{t('viewAll')}</button>
+                        </div>
+                        <ServicesDashboard activeService={activeService} onSelectService={setActiveService} />
+                     </div>
+                  </div>
+                  <div className="lg:col-span-1">
+                     <TaskManager />
+                  </div>
+               </div>
+            </div>
+          ) : (
+            <LandingPage 
+              onNavigate={setActiveTab} 
+              isLoggedIn={isLoggedIn} 
+              onLogin={() => setShowAuthModal(true)} 
+            />
+          )
         )}
 
         {activeTab === 'map' && (
-          <div className="h-[calc(100vh-5rem)] w-full relative bg-brand-surface">
-            <div className="absolute inset-0 max-w-[1800px] mx-auto p-6">
+           <div className="h-[calc(100vh-140px)] rounded-3xl overflow-hidden shadow-elevated border border-slate-200 bg-slate-900 animate-scale-in">
               <OfficeMap 
-                businesses={businesses} 
+                businesses={businesses}
                 favorites={favorites}
                 onToggleFavorite={toggleFavorite}
                 onRentClick={handleRentClick}
                 onAddBusiness={handleAddBusiness}
                 onUpdateBusiness={handleUpdateBusiness}
               />
-            </div>
-          </div>
+           </div>
         )}
 
-        {activeTab === 'services' && isLoggedIn && (
-          <div className="max-w-[1600px] mx-auto animate-fade-in px-6 mt-12">
-            <ServiceStats consultationCount={consultationCount} />
-            
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 h-[calc(100vh-22rem)] min-h-[600px]">
-               <div className="xl:col-span-3 h-full overflow-y-auto custom-scrollbar pr-2">
-                 <ServicesDashboard activeService={activeService} onSelectService={setActiveService} />
-               </div>
-               
-               <div className="xl:col-span-9 h-full">
-                 {activeService === ServiceType.NETWORK_INTELLIGENCE ? (
-                    <NetworkIntelligence businesses={businesses} userGenome={MY_BUSINESS_GENOME.genomeProfile as BusinessGenome} />
-                 ) : activeService === ServiceType.CONSULTING ? (
-                   <AIConsultant onMessageSent={handleConsultationSent} />
-                 ) : activeService === ServiceType.TASK_MANAGER ? (
-                   <TaskManager />
-                 ) : (
-                   <div className="h-full min-h-[400px] bg-white rounded-3xl border border-slate-100 shadow-card flex flex-col items-center justify-center text-center p-10">
-                      <div className="w-16 h-16 bg-brand-surface rounded-2xl flex items-center justify-center text-brand-primary mb-6">
-                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                      </div>
-                      <h2 className="text-2xl font-bold mb-2 font-heading text-brand-primary">{t('comingSoon')}</h2>
-                      <p className="text-text-sub max-w-md leading-relaxed">
-                        {t('serviceDeveloping', { service: t(activeService.toLowerCase() as any) })}
-                      </p>
-                   </div>
-                 )}
-               </div>
-            </div>
-          </div>
+        {activeTab === 'services' && (
+           <div className="animate-fade-in">
+              <ServicesPage />
+           </div>
         )}
+
+        {activeTab === 'business-network' && (
+           <div className="animate-fade-in">
+              <BusinessNetworkPage businesses={businesses} />
+           </div>
+        )}
+
+        {activeTab === 'consulting' && (
+           <div className="animate-fade-in">
+              <ConsultingPage />
+           </div>
+        )}
+
+        {activeTab === 'subscription' && (
+           <div className="animate-fade-in">
+              <SubscriptionPage onSubscribe={handleSubscribe} />
+           </div>
+        )}
+
+        {activeTab === 'profile' && (
+           <div className="animate-fade-in">
+              <ProfilePage 
+                onLogout={handleLogout} 
+                invoices={invoices}
+                onPayInvoice={handlePayInvoice}
+                onAddBusiness={handleAddBusiness}
+                businesses={businesses}
+              />
+           </div>
+        )}
+
+        {activeTab === 'about' && <AboutPage />}
+        {activeTab === 'faq' && <FaqPage />}
+        {activeTab === 'contact' && <ContactPage />}
+
       </main>
 
-      {/* Footer */}
-      {activeTab !== 'map' && <Footer onNavigate={(view) => setActiveTab(view)} />}
+      <Footer onNavigate={setActiveTab} />
 
       {/* Auth Modal */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-[100] bg-black/30 backdrop-blur-sm overflow-y-auto flex items-center justify-center">
-           <div className="relative w-full max-w-md">
+        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
+          <div className="relative w-full max-w-md">
              <button 
                onClick={() => setShowAuthModal(false)}
-               className="absolute -top-12 right-0 p-2 text-white hover:opacity-80"
+               className="absolute -top-12 right-0 text-white hover:text-slate-200 transition-colors"
              >
-               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
              </button>
              <AuthPage onLogin={handleLogin} />
-           </div>
+          </div>
         </div>
       )}
 
       {/* Rental Modal */}
-      {showRentalModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-           <div className="bg-white rounded-2xl shadow-elevated w-full max-w-lg overflow-hidden border border-slate-100">
-              <div className="p-10 text-center">
-                 {rentalStep === 'confirm' && (
-                   <>
-                     <div className="w-16 h-16 bg-brand-surface rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
-                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                     </div>
-                     <h2 className="text-2xl font-bold text-brand-primary mb-2 font-heading">{t('confirmBooking')}</h2>
-                     <p className="text-text-sub mb-8 text-sm">{t('getFreePlan')}</p>
-                     <div className="bg-brand-surface rounded-xl p-6 text-start mb-8 space-y-3 border border-slate-100">
-                        <p className="font-bold text-xs text-slate-500 uppercase tracking-wider mb-4">{t('planFeatures')}</p>
-                        {['Address', 'AI Assistant', 'Network Access'].map((item,i) => (
-                            <li key={i} className="text-sm text-text-sub flex items-center gap-3">
-                               <div className="w-1.5 h-1.5 bg-brand-gold rounded-full"></div>
-                               {item}
-                            </li>
-                        ))}
-                     </div>
-                     <div className="flex gap-3">
-                        <button 
-                          onClick={() => setShowRentalModal(false)}
-                          className="flex-1 h-12 rounded-xl border border-slate-200 font-semibold text-text-sub hover:bg-slate-50 transition-colors"
-                        >
-                          {t('cancel')}
-                        </button>
-                        <button 
-                          onClick={confirmRental}
-                          className="flex-1 h-12 rounded-xl bg-brand-primary hover:bg-[#052c42] text-white font-semibold shadow-sm transition-all"
-                        >
-                          {t('confirm')}
-                        </button>
-                     </div>
-                   </>
-                 )}
+      {showRentalModal && rentingBusiness && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden animate-scale-in">
+            {rentalStep === 'confirm' && (
+              <div className="p-8">
+                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-6 mx-auto text-blue-600">
+                   🏢
+                </div>
+                <h3 className="text-2xl font-bold text-center text-brand-primary mb-2 font-heading">{t('confirmBooking')}</h3>
+                <p className="text-center text-slate-500 mb-8">{t('getFreePlan')}</p>
+                
+                <div className="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-100">
+                  <h4 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-4">{t('planFeatures')}</h4>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-3 text-sm font-bold text-brand-primary">
+                       <span className="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span>
+                       {t('featureAddress')}
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-brand-primary">
+                       <span className="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span>
+                       {t('featureAI')}
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-brand-primary">
+                       <span className="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span>
+                       {t('featureNetwork')}
+                    </li>
+                  </ul>
+                </div>
 
-                 {rentalStep === 'processing' && (
-                   <div className="py-12">
-                      <div className="w-12 h-12 border-2 border-brand-surface border-t-brand-primary rounded-full animate-spin mx-auto mb-6"></div>
-                      <h3 className="text-lg font-bold mb-2 text-brand-primary">{t('processing')}</h3>
-                      <p className="text-text-sub text-sm">{t('activating')}</p>
-                   </div>
-                 )}
-
-                 {rentalStep === 'success' && (
-                   <>
-                     <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
-                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                     </div>
-                     <h2 className="text-2xl font-bold text-brand-primary mb-2 font-heading">{t('successBooking')}</h2>
-                     <p className="text-text-sub mb-8 max-w-xs mx-auto leading-relaxed text-sm">{t('congratsBooking')}</p>
-                     <button 
-                       onClick={() => {
-                         setShowRentalModal(false);
-                         setActiveTab('profile');
-                       }}
-                       className="w-full h-12 rounded-xl bg-brand-primary hover:bg-[#052c42] text-white font-bold shadow-sm transition-colors"
-                     >
-                       {t('startWork')}
-                     </button>
-                   </>
-                 )}
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setShowRentalModal(false)}
+                    className="flex-1 py-4 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button 
+                    onClick={confirmRental}
+                    className="flex-1 py-4 rounded-xl bg-brand-primary text-white font-bold shadow-lg hover:bg-[#052c42] transition-colors"
+                  >
+                    {t('confirm')}
+                  </button>
+                </div>
               </div>
-           </div>
+            )}
+
+            {rentalStep === 'processing' && (
+              <div className="p-12 text-center">
+                 <div className="relative w-20 h-20 mx-auto mb-8">
+                    <div className="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center text-2xl">⚙️</div>
+                 </div>
+                 <h3 className="text-xl font-bold text-brand-primary mb-2 animate-pulse">{t('processing')}</h3>
+                 <p className="text-slate-400 text-sm">{t('activating')}</p>
+              </div>
+            )}
+
+            {rentalStep === 'success' && (
+              <div className="p-8 text-center bg-white relative overflow-hidden">
+                 <div className="absolute inset-0 bg-blue-500/5"></div>
+                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mb-6 mx-auto animate-bounce text-green-600 shadow-lg shadow-green-200 relative z-10">
+                    🎉
+                 </div>
+                 <h3 className="text-2xl font-bold text-brand-primary mb-2 relative z-10">{t('successBooking')}</h3>
+                 <p className="text-slate-600 mb-8 max-w-xs mx-auto relative z-10">{t('congratsBooking')}</p>
+                 <button 
+                    onClick={() => { setShowRentalModal(false); setActiveTab('profile'); }}
+                    className="w-full py-4 bg-brand-primary text-white font-bold rounded-xl shadow-lg hover:bg-[#052c42] transition-colors relative z-10"
+                 >
+                    {t('startWork')}
+                 </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

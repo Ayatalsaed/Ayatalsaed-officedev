@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import AIConsultant from './AIConsultant';
 
 const ConsultingPage: React.FC = () => {
   const { t } = useLanguage();
@@ -64,13 +65,13 @@ const ConsultingPage: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 -mt-16 relative z-20 pb-20">
-         <div className="bg-white rounded-[32px] shadow-elevated p-8 md:p-12 border border-slate-100">
+         <div className="bg-white rounded-[32px] shadow-elevated p-8 md:p-12 border border-slate-100 min-h-[600px]">
             
             {/* Steps / Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 h-full">
                
                {/* Left: Category Selection */}
-               <div className="lg:col-span-5">
+               <div className="lg:col-span-5 flex flex-col">
                   <h3 className="text-lg font-bold text-brand-primary mb-6 flex items-center gap-2">
                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-primary text-white text-xs">1</span>
                      {t('selectConsultingType')}
@@ -107,104 +108,128 @@ const ConsultingPage: React.FC = () => {
                   </div>
                </div>
 
-               {/* Right: Request Form */}
-               <div className="lg:col-span-7 border-t lg:border-t-0 lg:border-l lg:border-slate-100 pt-12 lg:pt-0 lg:pl-12 rtl:lg:pl-0 rtl:lg:pr-12">
-                  <h3 className="text-lg font-bold text-brand-primary mb-6 flex items-center gap-2">
-                     <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-primary text-white text-xs">2</span>
-                     {t('requestConsultation')}
-                  </h3>
-
-                  {isSubmitted ? (
-                     <div className="bg-green-50 border border-green-100 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center animate-scale-in">
-                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mb-6 text-green-600">
-                           ✅
+               {/* Right: Interaction Area */}
+               <div className="lg:col-span-7 border-t lg:border-t-0 lg:border-l lg:border-slate-100 pt-12 lg:pt-0 lg:pl-12 rtl:lg:pl-0 rtl:lg:pr-12 flex flex-col">
+                  {selectedCategory === 'cons_tech' ? (
+                     // --- AI CONSULTANT INTEGRATION ---
+                     <div className="flex flex-col h-full animate-fade-in">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-bold text-brand-primary flex items-center gap-2">
+                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs">AI</span>
+                                {t('cons_tech')}
+                            </h3>
+                            <button 
+                                onClick={() => setSelectedCategory(null)}
+                                className="text-xs font-bold text-slate-400 hover:text-brand-primary"
+                            >
+                                {t('backToConsulting')}
+                            </button>
                         </div>
-                        <h3 className="text-2xl font-bold text-brand-primary mb-2">{t('requestSentSuccess')}</h3>
-                        <p className="text-slate-600 max-w-sm mx-auto">{t('weWillContact')}</p>
-                        <button onClick={() => setIsSubmitted(false)} className="mt-8 text-sm font-bold text-green-700 hover:underline">Send another request</button>
+                        <div className="flex-1 border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+                            <AIConsultant context="You are a helpful AI assistant specializing in technology consulting. Provide concise and actionable advice." />
+                        </div>
                      </div>
                   ) : (
-                     <form onSubmit={handleSubmit} className={`space-y-6 transition-opacity duration-300 ${!selectedCategory ? 'opacity-50 pointer-events-none blur-[1px]' : 'opacity-100'}`}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('name')}</label>
-                              <input 
-                                 type="text" 
-                                 required
-                                 value={formData.name}
-                                 onChange={e => setFormData({...formData, name: e.target.value})}
-                                 className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
-                              />
-                           </div>
-                           <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('companyName')}</label>
-                              <input 
-                                 type="text" 
-                                 required
-                                 value={formData.company}
-                                 onChange={e => setFormData({...formData, company: e.target.value})}
-                                 className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
-                              />
-                           </div>
-                        </div>
+                     // --- STANDARD FORM ---
+                     <>
+                        <h3 className="text-lg font-bold text-brand-primary mb-6 flex items-center gap-2">
+                           <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-primary text-white text-xs">2</span>
+                           {t('requestConsultation')}
+                        </h3>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('email')}</label>
-                              <input 
-                                 type="email" 
-                                 required
-                                 value={formData.email}
-                                 onChange={e => setFormData({...formData, email: e.target.value})}
-                                 className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
-                              />
+                        {isSubmitted ? (
+                           <div className="bg-green-50 border border-green-100 rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center animate-scale-in">
+                              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mb-6 text-green-600">
+                                 ✅
+                              </div>
+                              <h3 className="text-2xl font-bold text-brand-primary mb-2">{t('requestSentSuccess')}</h3>
+                              <p className="text-slate-600 max-w-sm mx-auto">{t('weWillContact')}</p>
+                              <button onClick={() => setIsSubmitted(false)} className="mt-8 text-sm font-bold text-green-700 hover:underline">Send another request</button>
                            </div>
-                           <div className="space-y-2">
-                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('phone')}</label>
-                              <input 
-                                 type="tel" 
-                                 required
-                                 value={formData.phone}
-                                 onChange={e => setFormData({...formData, phone: e.target.value})}
-                                 className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
-                              />
-                           </div>
-                        </div>
+                        ) : (
+                           <form onSubmit={handleSubmit} className={`space-y-6 transition-opacity duration-300 ${!selectedCategory ? 'opacity-50 pointer-events-none blur-[1px]' : 'opacity-100'}`}>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('name')}</label>
+                                    <input 
+                                       type="text" 
+                                       required
+                                       value={formData.name}
+                                       onChange={e => setFormData({...formData, name: e.target.value})}
+                                       className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                    />
+                                 </div>
+                                 <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('companyName')}</label>
+                                    <input 
+                                       type="text" 
+                                       required
+                                       value={formData.company}
+                                       onChange={e => setFormData({...formData, company: e.target.value})}
+                                       className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                    />
+                                 </div>
+                              </div>
 
-                        <div className="space-y-2">
-                           <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('projectDetails')}</label>
-                           <textarea 
-                              rows={4}
-                              required
-                              value={formData.details}
-                              onChange={e => setFormData({...formData, details: e.target.value})}
-                              className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all resize-none"
-                           />
-                        </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('email')}</label>
+                                    <input 
+                                       type="email" 
+                                       required
+                                       value={formData.email}
+                                       onChange={e => setFormData({...formData, email: e.target.value})}
+                                       className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                    />
+                                 </div>
+                                 <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('phone')}</label>
+                                    <input 
+                                       type="tel" 
+                                       required
+                                       value={formData.phone}
+                                       onChange={e => setFormData({...formData, phone: e.target.value})}
+                                       className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                    />
+                                 </div>
+                              </div>
 
-                        <div className="space-y-2">
-                           <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('budgetRange')}</label>
-                           <select 
-                              value={formData.budget}
-                              onChange={e => setFormData({...formData, budget: e.target.value})}
-                              className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
-                           >
-                              <option value="">Select Range</option>
-                              <option value="small">Less than 10,000 SAR</option>
-                              <option value="medium">10,000 - 50,000 SAR</option>
-                              <option value="large">50,000 - 200,000 SAR</option>
-                              <option value="enterprise">200,000+ SAR</option>
-                           </select>
-                        </div>
+                              <div className="space-y-2">
+                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('projectDetails')}</label>
+                                 <textarea 
+                                    rows={4}
+                                    required
+                                    value={formData.details}
+                                    onChange={e => setFormData({...formData, details: e.target.value})}
+                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all resize-none"
+                                 />
+                              </div>
 
-                        <button 
-                           type="submit"
-                           disabled={!selectedCategory}
-                           className="w-full py-4 bg-brand-primary text-white font-bold rounded-xl shadow-lg hover:bg-[#052c42] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                           {t('submitRequest')}
-                        </button>
-                     </form>
+                              <div className="space-y-2">
+                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('budgetRange')}</label>
+                                 <select 
+                                    value={formData.budget}
+                                    onChange={e => setFormData({...formData, budget: e.target.value})}
+                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                 >
+                                    <option value="">Select Range</option>
+                                    <option value="small">Less than 10,000 SAR</option>
+                                    <option value="medium">10,000 - 50,000 SAR</option>
+                                    <option value="large">50,000 - 200,000 SAR</option>
+                                    <option value="enterprise">200,000+ SAR</option>
+                                 </select>
+                              </div>
+
+                              <button 
+                                 type="submit"
+                                 disabled={!selectedCategory}
+                                 className="w-full py-4 bg-brand-primary text-white font-bold rounded-xl shadow-lg hover:bg-[#052c42] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                 {t('submitRequest')}
+                              </button>
+                           </form>
+                        )}
+                     </>
                   )}
                </div>
             </div>
