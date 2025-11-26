@@ -41,7 +41,7 @@ const OfficeMap: React.FC<OfficeMapProps> = ({ businesses, favorites, onRentClic
   
   // Auto-rotation state
   const autoRotate = useRef(true);
-  const inactivityTimer = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Map businesses to 3D points
   const globePoints = useMemo(() => {
@@ -291,9 +291,10 @@ const OfficeMap: React.FC<OfficeMapProps> = ({ businesses, favorites, onRentClic
   }, []);
 
   return (
-    <div className="flex flex-col lg:flex-row h-full gap-6 w-full font-sans relative">
+    <div className="relative w-full h-full overflow-hidden bg-[#0B1121] rounded-2xl group border border-slate-700 shadow-card">
        
-       <div className="relative flex-1 h-[600px] lg:h-full bg-[#0B1121] overflow-hidden rounded-2xl border border-slate-700 shadow-card group outline-none">
+       {/* 3D Map Container */}
+       <div className="absolute inset-0 z-0">
            {/* Stars Background */}
            <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
            
@@ -308,7 +309,7 @@ const OfficeMap: React.FC<OfficeMapProps> = ({ businesses, favorites, onRentClic
               onTouchEnd={handleInteractionEnd}
               onWheel={handleWheel}
               onClick={handleClick}
-              className="absolute inset-0 z-10 block cursor-grab active:cursor-grabbing touch-none"
+              className="absolute inset-0 z-10 block cursor-grab active:cursor-grabbing touch-none w-full h-full"
            />
 
            {/* Controls Overlay */}
@@ -340,7 +341,7 @@ const OfficeMap: React.FC<OfficeMapProps> = ({ businesses, favorites, onRentClic
            </div>
 
            {/* Zoom Controls */}
-           <div className="absolute bottom-6 right-6 z-20 flex flex-col gap-2">
+           <div className="absolute bottom-6 right-6 z-20 flex flex-col gap-2 pointer-events-auto">
                <button onClick={() => setZoom(z => Math.min(z + 0.2, 3))} className="w-10 h-10 bg-slate-800/80 backdrop-blur hover:bg-slate-700 border border-slate-600 rounded-xl flex items-center justify-center text-white transition-colors" title={t('zoomIn')}>
                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                </button>
@@ -353,68 +354,113 @@ const OfficeMap: React.FC<OfficeMapProps> = ({ businesses, favorites, onRentClic
            </div>
        </div>
 
-       {/* Sidebar Details */}
-       {isSidebarOpen && selectedBusiness && (
-           <div className="absolute inset-0 lg:relative lg:inset-auto w-full lg:w-96 bg-white shadow-2xl lg:rounded-2xl flex flex-col z-30 animate-slide-up overflow-hidden border-l border-slate-100">
-               <div className="relative h-32 bg-brand-primary">
-                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                   <button onClick={() => setIsSidebarOpen(false)} className="absolute top-4 right-4 text-white/70 hover:text-white bg-black/20 rounded-full p-1">
-                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                   </button>
-               </div>
-               
-               <div className="px-6 -mt-10 relative z-10">
-                   <div className="w-20 h-20 bg-white p-1 rounded-2xl shadow-lg mb-3">
-                       <div className="w-full h-full bg-slate-50 rounded-xl flex items-center justify-center overflow-hidden">
+       {/* Sidebar Drawer */}
+       <div 
+         className={`absolute inset-y-0 right-0 w-full md:w-[380px] bg-white shadow-2xl z-30 transform transition-transform duration-500 ease-out flex flex-col border-l border-slate-100 ${
+           isSidebarOpen && selectedBusiness ? 'translate-x-0' : 'translate-x-full'
+         }`}
+       >
+         {selectedBusiness && (
+           <>
+             {/* Header */}
+             <div className="relative h-48 shrink-0 bg-slate-50 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50/50"></div>
+                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#073D5A 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+                
+                <button 
+                  onClick={() => setIsSidebarOpen(false)} 
+                  className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/50 hover:bg-white backdrop-blur border border-slate-200/50 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-all shadow-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+             </div>
+
+             {/* Profile Card (Floating up) */}
+             <div className="px-8 relative flex-1 overflow-y-auto custom-scrollbar">
+                <div className="-mt-16 mb-6 flex flex-col items-center text-center relative z-10">
+                   <div className="w-28 h-28 bg-white p-2 rounded-3xl shadow-xl mb-4 rotate-3 hover:rotate-0 transition-transform duration-500 ease-out">
+                       <div className="w-full h-full bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 relative group-hover:scale-105 transition-transform">
                            {selectedBusiness.logoUrl ? (
                                <img src={selectedBusiness.logoUrl} className="w-full h-full object-cover" alt="logo" />
                            ) : (
-                               <span className="text-xs font-bold text-slate-400">LOGO</span>
+                               <span className="text-xs font-bold text-slate-300">LOGO</span>
                            )}
                        </div>
                    </div>
-                   <h2 className="text-2xl font-bold text-brand-primary mb-1">{selectedBusiness.name}</h2>
-                   <div className="flex gap-2 mb-4">
-                       <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase rounded">{selectedBusiness.category}</span>
-                       <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded ${selectedBusiness.isOccupied ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
-                           {selectedBusiness.isOccupied ? t('occupied') : t('available')}
-                       </span>
+                   <h2 className="text-2xl font-bold text-slate-900 mb-2 leading-tight font-heading">{selectedBusiness.name}</h2>
+                   <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider rounded-full">{selectedBusiness.category}</span>
+                      <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${selectedBusiness.isOccupied ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                         {selectedBusiness.isOccupied ? t('occupied') : t('available')}
+                      </span>
                    </div>
-               </div>
+                </div>
 
-               <div className="p-6 pt-0 flex-1 overflow-y-auto">
-                   <div className="prose prose-sm text-slate-500 mb-6 leading-relaxed">
-                       {selectedBusiness.description}
-                   </div>
-                   
-                   <div className="space-y-3">
-                       <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">{t('servicesOffered')}</h4>
-                       <div className="flex flex-wrap gap-2">
-                           {selectedBusiness.services?.map((s, i) => (
-                               <span key={i} className="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-medium text-slate-600">
-                                   {s}
-                               </span>
-                           ))}
-                       </div>
-                   </div>
-               </div>
+                {/* Stats Row */}
+                <div className="grid grid-cols-3 gap-2 mb-8 py-6 border-y border-slate-100">
+                    <div className="text-center">
+                        <div className="text-lg font-bold text-brand-primary">{selectedBusiness.activeVisitors || 0}</div>
+                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t('visitorNow')}</div>
+                    </div>
+                    <div className="text-center border-l border-slate-100">
+                        <div className="text-lg font-bold text-brand-primary">4.9</div>
+                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Rating</div>
+                    </div>
+                    <div className="text-center border-l border-slate-100">
+                        <div className="text-lg font-bold text-brand-primary">
+                            <div className={`w-2 h-2 rounded-full inline-block mr-1 ${selectedBusiness.isOccupied ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                        </div>
+                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Status</div>
+                    </div>
+                </div>
 
-               <div className="p-6 border-t border-slate-100 bg-slate-50">
-                   {selectedBusiness.isOccupied ? (
-                       <button className="w-full py-3.5 bg-brand-primary text-white rounded-xl font-bold text-sm shadow-lg hover:bg-[#052c42] transition-colors">
+                {/* Content Sections */}
+                <div className="space-y-6 pb-6">
+                    <div>
+                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span className="w-1 h-4 bg-brand-gold rounded-full"></span>
+                            {t('aboutCompany')}
+                        </h4>
+                        <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                            {selectedBusiness.description}
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3 flex items-center gap-2">
+                             <span className="w-1 h-4 bg-brand-gold rounded-full"></span>
+                            {t('servicesOffered')}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                            {selectedBusiness.services?.map((s, i) => (
+                                <span key={i} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 shadow-sm hover:border-brand-primary/30 transition-colors">
+                                    {s}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+             </div>
+
+             {/* Action Bar */}
+             <div className="p-6 bg-white border-t border-slate-100 shrink-0">
+                  {selectedBusiness.isOccupied ? (
+                       <button className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-900/10 hover:bg-[#052c42] hover:shadow-blue-900/20 transition-all active:scale-95 flex items-center justify-center gap-2 group">
+                           <svg className="w-5 h-5 text-blue-200 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                            {t('contact')}
                        </button>
                    ) : (
-                       <button onClick={() => onRentClick(selectedBusiness)} className="w-full py-3.5 bg-green-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-green-700 transition-colors">
+                       <button onClick={() => onRentClick(selectedBusiness)} className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-95 flex items-center justify-center gap-2 group">
+                           <svg className="w-5 h-5 text-emerald-200 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                            {t('rentFree')}
                        </button>
                    )}
-               </div>
-           </div>
-       )}
+             </div>
+           </>
+         )}
+       </div>
     </div>
   );
 };
 
 export default OfficeMap;
-    
